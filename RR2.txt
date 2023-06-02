@@ -1,0 +1,108 @@
+
+!
+! Last configuration change at 16:22:39 UTC Wed May 31 2023
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname RR2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description SRC
+ ip address 6.6.6.6 255.255.255.255
+!
+interface FastEthernet0/0
+ description SW2
+ mtu 1530
+ no ip address
+ duplex full
+!
+interface FastEthernet0/0.5
+ encapsulation dot1Q 5
+ ip address 172.16.1.1 255.255.255.0
+ ip ospf 1 area 0
+ mpls ip
+!
+router ospf 1
+ router-id 6.6.6.6
+ redistribute connected subnets
+!
+router bgp 2
+ bgp router-id 6.6.6.6
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor AS2 peer-group
+ neighbor AS2 remote-as 2
+ neighbor AS2 update-source Loopback0
+ neighbor 4.4.4.4 peer-group AS2
+ neighbor 5.5.5.5 peer-group AS2
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family l2vpn vpls
+  neighbor AS2 route-reflector-client
+  neighbor 4.4.4.4 activate
+  neighbor 5.5.5.5 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ stopbits 1
+line aux 0
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end

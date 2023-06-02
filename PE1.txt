@@ -1,0 +1,171 @@
+!
+! Last configuration change at 15:24:23 UTC Wed May 31 2023
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no platform punt-keepalive disable-kernel-core
+platform console serial
+!
+hostname PE1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+no ip domain lookup
+
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+!
+multilink bundle-name authenticated
+l2vpn vfi context CUSTOMER 
+ vpn id 10
+ autodiscovery bgp signaling ldp 
+  vpls-id 1:2
+  rd 1:2
+  route-target export 1:2
+  route-target import 1:2
+!
+!
+!
+!
+license udi pid CSR1000V sn 9NVI9JWGKKV
+spanning-tree extend system-id
+!
+!
+redundancy
+ mode none
+bridge-domain 10 
+ member GigabitEthernet4 service-instance 10
+ member vfi CUSTOMER
+!
+!
+!
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+interface Loopback0
+ no shutdown
+ description SRC
+ ip address 2.2.2.2 255.255.255.255
+!
+interface GigabitEthernet1
+ no shutdown
+ description SW1
+ mtu 1530
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet1.5
+ no shutdown
+ description MGMT
+ encapsulation dot1Q 5
+ ip address 172.16.1.2 255.255.255.0
+ ip ospf 1 area 0
+ mpls ip
+!
+interface GigabitEthernet2
+ no shutdown
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet3
+ no shutdown
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet4
+ no shutdown
+ description CE1
+ no ip address
+ negotiation auto
+ service instance 10 ethernet
+  encapsulation default
+ !
+!
+router ospf 1
+ router-id 2.2.2.2
+ redistribute connected subnets
+!
+router bgp 1
+ bgp router-id 2.2.2.2
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 1.1.1.1 remote-as 1
+ neighbor 1.1.1.1 update-source Loopback0
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family l2vpn vpls
+  neighbor 1.1.1.1 activate
+ exit-address-family
+!
+!
+virtual-service csr_mgmt
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+!
+mpls ldp router-id Loopback0 force
+!
+!
+control-plane
+!
+!
+line con 0
+ stopbits 1
+line vty 0
+ login
+line vty 1
+ login
+ length 0
+line vty 2 4
+ login
+!
+!
+end
